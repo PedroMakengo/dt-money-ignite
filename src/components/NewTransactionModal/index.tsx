@@ -10,7 +10,8 @@ import {
 
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form/dist/useForm'
+import { useForm } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 
 const newTransactionFormSchema = z.object({
   description: z.string(),
@@ -22,6 +23,7 @@ type NewTransactionFormInputs = z.infer<typeof newTransactionFormSchema>
 
 export function NewTransactionModal() {
   const {
+    control,
     register,
     handleSubmit,
     formState: { isSubmitting },
@@ -60,24 +62,27 @@ export function NewTransactionModal() {
             required
             {...register('category')}
           />
-          <TransactionType>
-            <TransactionTypeButton
-              value="income"
-              variant="income"
-              {...register('type')}
-            >
-              <ArrowCircleUp size={24} />
-              Entrada
-            </TransactionTypeButton>
-            <TransactionTypeButton
-              value="outcome"
-              variant="outcome"
-              {...register('type')}
-            >
-              <ArrowCircleDown size={24} />
-              Saída
-            </TransactionTypeButton>
-          </TransactionType>
+          <Controller
+            control={control}
+            name="type"
+            render={({ field }) => {
+              return (
+                <TransactionType
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <TransactionTypeButton value="income" variant="income">
+                    <ArrowCircleUp size={24} />
+                    Entrada
+                  </TransactionTypeButton>
+                  <TransactionTypeButton value="outcome" variant="outcome">
+                    <ArrowCircleDown size={24} />
+                    Saída
+                  </TransactionTypeButton>
+                </TransactionType>
+              )
+            }}
+          />
 
           <button type="submit" disabled={isSubmitting}>
             Cadastrar
