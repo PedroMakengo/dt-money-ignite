@@ -13,6 +13,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 
+import { api } from '../../lib/axios'
+import { useContext } from 'react'
+import { TransactionsContext } from '../../contexts/TransactionsContext'
+
 const newTransactionFormSchema = z.object({
   description: z.string(),
   price: z.number(),
@@ -22,17 +26,30 @@ const newTransactionFormSchema = z.object({
 type NewTransactionFormInputs = z.infer<typeof newTransactionFormSchema>
 
 export function NewTransactionModal() {
+  const { createTransaction } = useContext(TransactionsContext)
   const {
     control,
     register,
     handleSubmit,
     formState: { isSubmitting },
+    reset,
   } = useForm<NewTransactionFormInputs>({
     resolver: zodResolver(newTransactionFormSchema),
+    defaultValues: {
+      type: 'income',
+    },
   })
 
-  function handleCreateNewTransaction(data: NewTransactionFormInputs) {
-    console.log(data)
+  async function handleCreateNewTransaction(data: NewTransactionFormInputs) {
+    const { description, price, category, type } = data
+
+    await createTransaction({
+      description,
+      price,
+      category,
+      type,
+    })
+    reset()
   }
   return (
     <Dialog.Portal>
@@ -53,8 +70,8 @@ export function NewTransactionModal() {
           <input
             type="number"
             placeholder="Preço"
+            {...register('price', { valueAsNumber: true })}
             required
-            {...register('price')}
           />
           <input
             type="text"
