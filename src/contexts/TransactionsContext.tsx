@@ -33,7 +33,7 @@ export const TransactionsContext = createContext({} as TransactionsContextType)
 export function TransactionsProvider({ children }: TransactionsProviderProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
-  async function fetchTransactions(query?: string) {
+  const fetchTransactions = useCallback(async (query?: string) => {
     const responde = await api.get('/transactions', {
       params: {
         q: query,
@@ -42,7 +42,7 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
       },
     })
     setTransactions(responde.data)
-  }
+  }, [])
 
   const createTransaction = useCallback(
     async (data: CreateTransactionInput) => {
@@ -63,7 +63,7 @@ export function TransactionsProvider({ children }: TransactionsProviderProps) {
 
   useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [fetchTransactions])
 
   return (
     <TransactionsContext.Provider
